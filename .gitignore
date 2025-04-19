@@ -1,0 +1,48 @@
+```gitignore
+# Python
+api/__pycache__/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Venv
+.venv/
+env/
+ENV/
+venv/
+
+# IDE / PyCharm
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test & coverage
+coverage/
+htmlcov/
+.tox/
+.pytest_cache/
+.cache/
+
+# Output / build
+dist/
+build/
+*.egg-info/
+
+# Web assets (builds)
+frontend/dist/
+frontend/node_modules/
+
+# WebOS app
+webos-app/build/
+
+# Media
+media
