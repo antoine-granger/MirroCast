@@ -14,7 +14,7 @@ app.mount("/media", StaticFiles(directory="media"), name="media")
 # Autoriser le frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://192.168.1.128:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
