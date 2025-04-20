@@ -17,6 +17,8 @@ function App(): JSX.Element {
     const [statusMessage, setStatusMessage] = useState<string>("")
     const [progress, setProgress] = useState<number>(0)
 
+    const [mirroringActive, setMirroringActive] = useState(false);
+
     const refreshVideos = () => {
         fetch(`${backendUrl}/videos`)
             .then(res => res.json())
@@ -28,6 +30,13 @@ function App(): JSX.Element {
             .then(res => res.json())
             .then((data: VideoResponse) => setVideos(data.videos))
     }, [])
+
+    const toggleMirroring = async () => {
+        const endpoint = mirroringActive ? "/mirror/stop" : "/mirror/start";
+        await fetch(`${backendUrl}${endpoint}`, {method: "POST"});
+        setMirroringActive(!mirroringActive);
+    };
+
 
     const handleDownload = async (): Promise<void> => {
         if (!url) return
@@ -67,6 +76,19 @@ function App(): JSX.Element {
         <div style={{textAlign: "center", padding: "2rem"}}>
             <img src="/MirroCast-2.png" width={150}/>
             <h1>MirroCast</h1>
+
+            <button onClick={toggleMirroring} style={{margin: "1rem"}}>
+                {mirroringActive ? "🛑 Stop Mirroring" : "🟢 Start Mirroring"}
+            </button>
+
+            {mirroringActive && (
+                <img
+                    src={`${backendUrl}/mirror/mjpeg`}
+                    alt="Mirroring"
+                    style={{width: "100%", maxWidth: "800px", borderRadius: "8px"}}
+                />
+            )}
+
 
             <button onClick={refreshVideos} style={{marginBottom: "1rem"}}>
                 🔄 Rafraîchir les vidéos
@@ -119,6 +141,13 @@ function App(): JSX.Element {
                 )}
             </div>
 
+            <h2>🖥️ Mirroring en direct (MJPEG)</h2>
+            <img
+                src={`${backendUrl}/mirror/mjpeg`}
+                alt="Mirroring"
+                style={{width: "100%", maxWidth: "800px", borderRadius: "8px"}}
+            />
+
             <h2>Vidéos disponibles</h2>
             <ul>
                 {videos.map((video) => {
@@ -126,7 +155,7 @@ function App(): JSX.Element {
                     return (
                         <li key={video}>
                             <video
-                                src={`${backendUrl}/media/${encodeURIComponent(video)}`}
+                                src={`${backendUrl}/stream/${encodeURIComponent(video)}`}
                                 poster={`${backendUrl}/media/${encodeURIComponent(name)}.jpg`}
                                 width="600"
                                 style={{borderRadius: "6px", marginBottom: "1rem"}}
