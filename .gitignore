@@ -1,4 +1,3 @@
-```gitignore
 # Python
 api/__pycache__/
 __pycache__/
@@ -40,6 +39,7 @@ build/
 # Web assets (builds)
 frontend/dist/
 frontend/node_modules/
+frontend/.vite/
 
 # WebOS app
 webos-app/build/
