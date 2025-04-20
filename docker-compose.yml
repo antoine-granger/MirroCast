@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  turnserver:
+    image: instrumentisto/coturn
+    container_name: coturn
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+    environment:
+      - TURN_USER=webrtc
+      - TURN_PASS=mirrocast
+    restart: unless-stopped
