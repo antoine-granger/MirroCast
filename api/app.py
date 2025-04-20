@@ -4,19 +4,22 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routers import download, mirror, stream
+from api.routers import download, stream, webrtc
 
 app = FastAPI()
 app.include_router(download.router)
 app.include_router(stream.router)
-app.include_router(mirror.router)
+app.include_router(webrtc.router)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 # Autoriser le frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://192.168.1.128:5173"],
+    allow_origins=[
+        "https://192.168.1.128:5173",
+        "http://localhost:5173"
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )

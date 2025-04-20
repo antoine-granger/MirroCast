@@ -44,6 +44,7 @@ source .venv/bin/activate  # sous Linux/macOS
 # Installer les dépendances
 pip install -r requirements.txt
 winget install "FFmpeg (Essentials Build)"
+ffmpeg -encoders | findstr nvenc
 
 # Lancer le serveur backend
 uvicorn main:app --reload

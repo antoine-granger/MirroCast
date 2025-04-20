@@ -1,4 +1,5 @@
 import './App.css'
+import WebRTCViewer from "./WebRTCViewer"
 import {JSX, useEffect, useState} from 'react'
 
 type VideoResponse = {
@@ -12,12 +13,10 @@ function App(): JSX.Element {
 
     const backendHost = window.location.hostname;
     const backendPort = "8000";
-    const backendUrl = `http://${backendHost}:${backendPort}`;
+    const backendUrl = `https://${backendHost}:${backendPort}`;
 
     const [statusMessage, setStatusMessage] = useState<string>("")
     const [progress, setProgress] = useState<number>(0)
-
-    const [mirroringActive, setMirroringActive] = useState(false);
 
     const refreshVideos = () => {
         fetch(`${backendUrl}/videos`)
@@ -30,13 +29,6 @@ function App(): JSX.Element {
             .then(res => res.json())
             .then((data: VideoResponse) => setVideos(data.videos))
     }, [])
-
-    const toggleMirroring = async () => {
-        const endpoint = mirroringActive ? "/mirror/stop" : "/mirror/start";
-        await fetch(`${backendUrl}${endpoint}`, {method: "POST"});
-        setMirroringActive(!mirroringActive);
-    };
-
 
     const handleDownload = async (): Promise<void> => {
         if (!url) return
@@ -77,18 +69,7 @@ function App(): JSX.Element {
             <img src="/MirroCast-2.png" width={150}/>
             <h1>MirroCast</h1>
 
-            <button onClick={toggleMirroring} style={{margin: "1rem"}}>
-                {mirroringActive ? "🛑 Stop Mirroring" : "🟢 Start Mirroring"}
-            </button>
-
-            {mirroringActive && (
-                <img
-                    src={`${backendUrl}/mirror/mjpeg`}
-                    alt="Mirroring"
-                    style={{width: "100%", maxWidth: "800px", borderRadius: "8px"}}
-                />
-            )}
-
+            <WebRTCViewer backendUrl={backendUrl} />
 
             <button onClick={refreshVideos} style={{marginBottom: "1rem"}}>
                 🔄 Rafraîchir les vidéos
@@ -140,13 +121,6 @@ function App(): JSX.Element {
                     <div className="spinner"/>
                 )}
             </div>
-
-            <h2>🖥️ Mirroring en direct (MJPEG)</h2>
-            <img
-                src={`${backendUrl}/mirror/mjpeg`}
-                alt="Mirroring"
-                style={{width: "100%", maxWidth: "800px", borderRadius: "8px"}}
-            />
 
             <h2>Vidéos disponibles</h2>
             <ul>
