@@ -53,3 +53,5 @@ yt-dlp==2025.3.31
 mss~=10.0.0
 numpy~=2.2.5
 opencv-python~=4.11.0.86
+screeninfo~=0.8.1
+asyncio~=3.4.3

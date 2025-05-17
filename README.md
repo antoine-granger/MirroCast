@@ -64,7 +64,6 @@ MirroCast/
 ├── frontend/            # SPA React/Vue (à venir)
 ├── webos-app/           # Client LG WebOS (à venir)
 ├── requirements.txt
-├── pyproject.toml
 └── README.md
 ```
 

@@ -1,5 +1,6 @@
 # Python
 api/__pycache__/
+api/logs/
 __pycache__/
 *.py[cod]
 *.pyo

@@ -1,3 +1,5 @@
+# api/services/generate_thumbnail.py
+
 import subprocess
 
 

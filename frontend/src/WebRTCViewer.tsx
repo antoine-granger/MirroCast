@@ -32,6 +32,21 @@ const WebRTCViewer = ({backendUrl}: { backendUrl: string }) => {
         }
     }
 
+    const forcePlay = () => {
+        const video = videoRef.current
+        if (video) {
+            const tracks = (video.srcObject as MediaStream)?.getVideoTracks() ?? []
+            console.log("🎥 Nombre de tracks vidéo :", tracks.length)
+            console.log("🎥 Track info :", tracks[0])
+
+            video.play().then(() => {
+                console.log("▶️ Lecture manuelle OK")
+            }).catch((err) => {
+                console.error("❌ Lecture manuelle échouée", err)
+            })
+        }
+    }
+
     const startWebRTC = async () => {
         if (active) {
             console.log("🛑 Arrêt du partage WebRTC")
@@ -55,7 +70,6 @@ const WebRTCViewer = ({backendUrl}: { backendUrl: string }) => {
             ],
         });
 
-
         pc.onconnectionstatechange = () => {
             console.error("📡 WebRTC state:", pc.connectionState)
         }
@@ -69,25 +83,40 @@ const WebRTCViewer = ({backendUrl}: { backendUrl: string }) => {
                 console.log("✅ Tous les candidats ICE envoyés.");
             }
         };
+
         pcRef.current = pc
         pc.addTransceiver("video", {direction: "recvonly"})
 
         pc.ontrack = (event) => {
-            console.log("📺 WebRTC track received", event.streams[0])
-            const video = videoRef.current
+            log("📺 WebRTC track reçue !");
+            log("📦 Nombre de streams :", event.streams.length);
+
+            const track = event.track;
+            const stream = event.streams[0];
+            if (!stream) {
+                log("❌ Aucun stream reçu !");
+                return;
+            }
+
+            const tracks = stream.getTracks();
+            log("🎥 Tracks du stream :", tracks.map(t => `${t.kind}, enabled: ${t.enabled}`));
+            log("🎞️ readyState:", track.readyState);
+            log("🔍 muted:", track.muted);
+
+            const video = videoRef.current;
             if (video) {
-                video.srcObject = event.streams[0]
-                console.log("🎥 Flux attaché, tentative de lecture...")
+                video.srcObject = stream;
+                log("🔗 Flux vidéo attaché à la balise <video>");
 
                 setTimeout(() => {
                     video.play().then(() => {
-                        console.log("▶️ Lecture démarrée")
+                        log("▶️ Lecture démarrée !");
                     }).catch((err) => {
-                        console.error("❌ Lecture refusée", err)
-                    })
-                }, 500)
+                        log("❌ Lecture refusée :", err);
+                    });
+                }, 500);
             }
-        }
+        };
 
         const offer = await pc.createOffer()
         await pc.setLocalDescription(offer)
@@ -98,30 +127,27 @@ const WebRTCViewer = ({backendUrl}: { backendUrl: string }) => {
             body: JSON.stringify(pc.localDescription)
         })
 
+        if (res.status === 409) {
+            console.log("⚠️ Une session est déjà active. Veuillez attendre la fin de la diffusion.");
+            pc.close()
+            return
+        }
+
+        if (!res.ok) {
+            console.log("❌ Erreur lors de la négociation WebRTC :", res.status)
+            pc.close()
+            return
+        }
+
         const answer = await res.json()
         await pc.setRemoteDescription(answer)
         setActive(true)
     }
 
-    const forcePlay = () => {
-        const video = videoRef.current
-        if (video) {
-            const tracks = (video.srcObject as MediaStream)?.getVideoTracks() ?? []
-            console.log("🎥 Nombre de tracks vidéo :", tracks.length)
-            console.log("🎥 Track info :", tracks[0])
-
-            video.play().then(() => {
-                console.log("▶️ Lecture manuelle OK")
-            }).catch((err) => {
-                console.error("❌ Lecture manuelle échouée", err)
-            })
-        }
-    }
-
     return (
         <div style={{marginTop: "2rem", textAlign: "center"}}>
-            <button onClick={startWebRTC}>
-                {active ? "🛑 Stopper WebRTC" : "▶️ Activer WebRTC"}
+            <button onClick={startWebRTC} disabled={active}>
+                {active ? "✅ WebRTC actif" : "▶️ Activer WebRTC"}
             </button>
             <button onClick={handleFullscreen} style={{marginLeft: "1rem"}}>
                 ⛶ Plein écran
